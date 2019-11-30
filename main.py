@@ -52,6 +52,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from keras import backend as K
+
 # %matplotlib inline
 
 print('done')
@@ -111,7 +112,7 @@ model.add(Embedding(max_words, 100, input_length=max_len))
 model.add(LSTM(64))  # количество нейронов
 model.add(Dropout(0.25))  # вероятность
 model.add(Dense(2, activation=K.tanh))
-#model.add(Activation('softmax'))
+# model.add(Activation('softmax'))
 
 # learning_rate = 0.001
 optimizer = Adam(0.001)
