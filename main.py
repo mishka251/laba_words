@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import datetime
 # NLP
 import re
 import nltk
@@ -55,6 +55,12 @@ from keras import backend as K
 
 # %matplotlib inline
 
+# from tensorflow.python.client import device_lib
+# print(device_lib.list_local_devices())
+#
+# import tensorflow as ts
+# sess = ts.compat.v1.Session(config=ts.compat.v1.ConfigProto(log_device_placement=True))
+
 print('done')
 
 films = pd.read_csv("movie-review/movie_review.csv")
@@ -95,7 +101,7 @@ Y = films["tag"]
 label_encoder = LabelEncoder()
 Y = label_encoder.fit_transform(Y)
 Y = to_categorical(Y)
-
+#
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.15)
 
 max_words = 10000
@@ -110,7 +116,7 @@ X_train_seq = sequence.pad_sequences(X_train_seq, maxlen=max_len)
 model = Sequential()
 model.add(Embedding(max_words, 100, input_length=max_len))
 model.add(LSTM(64))  # количество нейронов
-model.add(Dropout(0.25))  # вероятность
+model.add(Dropout(0.35))  # вероятность
 model.add(Dense(2, activation=K.tanh))
 # model.add(Activation('softmax'))
 
@@ -143,6 +149,7 @@ plt.plot(epochs, loss_values, 'bo', label='Training loss')
 plt.plot(epochs, val_loss_values, 'b', label='Validation loss')
 plt.xlabel('Epohs')
 plt.ylabel('Loss')
+plt.title("tanh 0.35")
 plt.legend()
 plt.show()
 
@@ -155,6 +162,7 @@ plt.plot(epochs, acc_values, 'bo', label='Training acc')
 plt.plot(epochs, val_acc_values, 'b', label='Validation acc')
 plt.xlabel('Epohs')
 plt.ylabel('Accuracy')
+plt.title("tanh 0.35")
 plt.legend()
 plt.show()
 
@@ -166,3 +174,6 @@ print('test loss, test acc:', results)
 ypreds = model.predict_classes(test_X_seq, verbose=1)
 
 print(ypreds)
+
+model.save("model" + str(datetime.datetime.now().microsecond) + ".h5")
+print("end")
