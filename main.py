@@ -60,7 +60,7 @@ print('done')
 films = pd.read_csv("movie-review/movie_review.csv")
 
 X = films["text"]
-# X = X.apply(lambda x: BeautifulSoup(x, "lxml").get_text())
+X = X.apply(lambda x: BeautifulSoup(x, "lxml").get_text())
 X = X.apply(lambda x: x.lower())
 X = X.apply(lambda x: re.sub("[^a-zA-Z]", " ", x))
 X = X.apply(lambda x: re.sub("\s+", " ", x))
@@ -86,6 +86,7 @@ lstm_cnts = [64, 32, 32]
 times_f = open("times.txt", "w")
 
 for (lstm, dropout) in zip(lstm_cnts, dropouts):
+    times_f.write(f"sigmoid dropout={dropout}, lstm={lstm}")
     start = timer()
     X_train_seq = tokenizer.texts_to_sequences(X_train)
     X_train_seq = sequence.pad_sequences(X_train_seq, maxlen=max_len)
@@ -100,7 +101,7 @@ for (lstm, dropout) in zip(lstm_cnts, dropouts):
     # learning_rate = 0.001
     optimizer = Adam(0.001)
     # Компиляция данных
-    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
     verbose = 1
     epochs = 10
@@ -144,13 +145,14 @@ for (lstm, dropout) in zip(lstm_cnts, dropouts):
     test_X_seq = tokenizer.texts_to_sequences(X_test)
     test_X_seq = sequence.pad_sequences(test_X_seq, maxlen=max_len)
     results = model.evaluate(test_X_seq, Y_test)
-    print('test loss, test acc:', results)
+    times_f.write(f'test loss, test acc:{results}\n')
 
     ypreds = model.predict_classes(test_X_seq, verbose=1)
 
-    print(ypreds)
+    times_f.write(f"ypreds = {ypreds}\n")
 
     model.save("model" + str(datetime.datetime.now().microsecond) + ".h5")
-    times_f.write(f"time = {timer()-start}")
+    times_f.write(f"time = {timer() - start}\n")
+    times_f.write("\n\n")
 
 print("end")
